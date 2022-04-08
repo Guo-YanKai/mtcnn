@@ -45,6 +45,20 @@ def get_minibatch(imdb):
     return data, label
 
 
+def convert_image_to_tensor(image):
+    """convert an image to pytorch tensor
+        Parameters:
+        ----------
+        image: numpy array , h * w * c
+        Returns:
+        -------
+        image_tensor: pytorch.FloatTensor, c * h * w
+        """
+    # image = image.astype(np.float32)
+    transform = transforms.ToTensor()
+    return transform(image)
+    # return transform(image)
+
 
 class TrainImageReader:
     def __init__(self, imdb, im_size, batch_size=128, shuffle=False):

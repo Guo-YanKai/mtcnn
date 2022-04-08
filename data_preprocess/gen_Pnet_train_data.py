@@ -15,12 +15,14 @@ import matplotlib.pyplot as plt
 from data_preprocess.utils import IoU
 
 
+
+
 if __name__ =="__main__":
-    anno_file = r"D:\code\work_code\github_code\mtcnn\train_data\trainImageList.txt"
-    img_dir = r"D:\code\work_code\github_code\mtcnn\train_data\face_image"
-    pos_save_dir = r"D:\code\work_code\github_code\mtcnn\train_data\positive"
-    part_save_dir = r"D:\code\work_code\github_code\mtcnn\train_data\part"
-    neg_save_dir = r'D:\code\work_code\github_code\mtcnn\train_data\negative'
+    anno_file = "/data/dl/gyk/mtcnn/train_data/trainImageList.txt"
+    img_dir = "/data/dl/gyk/mtcnn/train_data/face_image"
+    pos_save_dir = "/data/dl/gyk/mtcnn/train_data/positive"
+    part_save_dir = "/data/dl/gyk/mtcnn/train_data/part"
+    neg_save_dir = '/data/dl/gyk/mtcnn/train_data/negative'
 
     if not os.path.exists(pos_save_dir):
         os.mkdir(pos_save_dir)
@@ -42,9 +44,9 @@ if __name__ =="__main__":
     box_idx = 0
 
     # store labels of positive, negative, part images
-    f1 = open(os.path.join(r'D:\code\work_code\github_code\mtcnn\train_data\anno_store', 'pos_12.txt'), 'a')
-    f2 = open(os.path.join(r'D:\code\work_code\github_code\mtcnn\train_data\anno_store', 'neg_12.txt'), 'a')
-    f3 = open(os.path.join(r'D:\code\work_code\github_code\mtcnn\train_data\anno_store', 'part_12.txt'), 'a')
+    f1 = open(os.path.join('/data/dl/gyk/mtcnn/train_data/anno_store', 'pos_12.txt'), 'a')
+    f2 = open(os.path.join('/data/dl/gyk/mtcnn/train_data/anno_store', 'neg_12.txt'), 'a')
+    f3 = open(os.path.join('/data/dl/gyk/mtcnn/train_data/anno_store', 'part_12.txt'), 'a')
     for annotation in annotations:
         annotation = annotation.strip().split(' ')
         img_path = os.path.join(img_dir, annotation[0])

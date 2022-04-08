@@ -17,11 +17,11 @@ LOG_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))+"/log"
 
 USE_CUDA = True
 
-TRAIN_BATCH_SIZE = 256
+TRAIN_BATCH_SIZE = 2
 
-TRAIN_LR = 0.001
+TRAIN_LR = 0.0001
 
-END_EPOCH = 10
+END_EPOCH = 200
 
 PNET_POSTIVE_ANNO_FILENAME = "pos_12.txt"
 PNET_NEGATIVE_ANNO_FILENAME = "neg_12.txt"

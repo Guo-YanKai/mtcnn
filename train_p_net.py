@@ -7,11 +7,11 @@
 # @software: PyCharm
 
 import argparse
-import sys
 import os
+import sys
 import config
 from core.imagedb import ImageDB
-
+from train_tools import train_pnet
 
 
 def parse_args():
@@ -50,17 +50,17 @@ def parse_args():
     return args
 
 def train_net(annotation_file, model_store_path,
-                end_epoch=16, frequent=200, lr=0.01, batch_size=128, use_cuda=False):
+                end_epoch=16,  lr=0.01, batch_size=128, use_cuda=False):
 
     imagedb = ImageDB(annotation_file)
-
     gt_imdb = imagedb.load_imdb()
+
     # 这里是翻转进行数据增强，可以先不使用
     # gt_imdb = imagedb.append_flipped_images(gt_imdb)
 
 
-    # train_pnet(model_store_path=model_store_path, end_epoch=end_epoch, imdb=gt_imdb,
-    #            batch_size=batch_size, frequent=frequent, base_lr=lr, use_cuda=use_cuda)
+    train_pnet(model_store_path=model_store_path, end_epoch=end_epoch, imdb=gt_imdb,
+               batch_size=batch_size, base_lr=lr, use_cuda=use_cuda)
 
 
 if __name__ =="__main__":
@@ -68,5 +68,5 @@ if __name__ =="__main__":
     print(args)
 
     train_net(args.annotation_file, args.model_store_path,
-              end_epoch=args.end_epoch, frequent=args.frequent,
+              end_epoch=args.end_epoch,
               lr=args.lr, batch_size=args.batch_size, use_cuda=args.use_cuda)

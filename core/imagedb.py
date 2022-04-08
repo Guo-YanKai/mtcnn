@@ -57,13 +57,13 @@ class ImageDB(object):
                 imdb_["flipped"] = False
                 imdb_["bbox_target"] = np.zeros((4,))
                 imdb_["landmark_target"] = np.zeros((12,))
-                if len(annotation[2:])==4:
+                if len(annotation[2:]) == 4:
                     bbox_target = annotation[2:6]
                     imdb_["bbox_target"] = np.array(bbox_target).astype(float)
-                if len(annotation[2:])==16:
+                if len(annotation[2:]) == 16:
                     bbox_target = annotation[2:6]
                     imdb_["bbox_target"] = np.array(bbox_target).astype(float)
-                    landmark  = annotation[6:]
+                    landmark = annotation[6:]
                     imdb_["landmark_target"] = np.array(landmark).astype(float)
 
             imdb.append(imdb_)
@@ -85,8 +85,7 @@ class ImageDB(object):
 
         return image_file
 
-
-    def append_flipped_images(self,imdb):
+    def append_flipped_images(self, imdb):
         """
         阔以先不使用
         :param imdb:原始图像训练集
@@ -98,11 +97,11 @@ class ImageDB(object):
             m_bbox = imdb_["bbox_target"].copy()
             m_bbox[0], m_bbox[2] = -m_bbox[2], -m_bbox[0]
 
-            landmark_ =  imdb_["landmark_target"].copy()
-            landmark_ = landmark_.reshape((6,2))
-            landmark_ = np.asarray([(1-x, y) for (x,y) in landmark_])
-            landmark_[[0,1]] = landmark_[[1,0]]
-            landmark_[[3,4]] = landmark_[[4,3]]
+            landmark_ = imdb_["landmark_target"].copy()
+            landmark_ = landmark_.reshape((6, 2))
+            landmark_ = np.asarray([(1 - x, y) for (x, y) in landmark_])
+            landmark_[[0, 1]] = landmark_[[1, 0]]
+            landmark_[[3, 4]] = landmark_[[4, 3]]
 
             item = {'image': imdb_['image'],
                     'label': imdb_['label'],
@@ -111,6 +110,6 @@ class ImageDB(object):
                     'flipped': True}
             imdb.append(item)
 
-        self.image_set_index *=2
+        self.image_set_index *= 2
 
         return imdb

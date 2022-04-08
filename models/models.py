@@ -12,10 +12,11 @@ import torch.nn.functional as F
 from collections import OrderedDict
 import numpy as np
 
+
 def weigths_init(m):
     if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
-        nn.init.xavier_uniform(m.weight.data)
-        nn.init.constant(m.bias, 0.1)
+        nn.init.xavier_uniform_(m.weight.data)
+        nn.init.constant_(m.bias, 0.1)
 
 
 class PNet(nn.Module):
@@ -46,7 +47,6 @@ class PNet(nn.Module):
         # weigth init with xavier
         self.apply(weigths_init)
 
-
     def forward(self, x):
         x = self.pre_layer(x)
         label = torch.sigmoid(self.conv4_1(x))
@@ -59,7 +59,7 @@ class PNet(nn.Module):
 
 
 class RNet(nn.Module):
-    def __init__(self, is_train=False, use_cuda =True):
+    def __init__(self, is_train=False, use_cuda=True):
         super(RNet, self).__init__()
         self.is_train = is_train
         self.use_cuda = use_cuda
@@ -72,26 +72,99 @@ class RNet(nn.Module):
             nn.Conv2d(in_channels=28, out_channels=48, kernel_size=3, stride=1),
             nn.PReLU(48),
             nn.MaxPool2d(kernel_size=3, stride=2, ceil_mode=True),
-            nn.Conv2d(in_channels=48, out_channels=64,  kernel_size=2, stride=1),
+            nn.Conv2d(in_channels=48, out_channels=64, kernel_size=2, stride=1),
             nn.PReLU(64)
         )
 
-        self.conv4 = nn.Linear(in_features=64*3*3, out_features=128)
+        self.conv4 = nn.Linear(in_features=64 * 3 * 3, out_features=128)
+        self.prelu4 = nn.PReLU(128)
 
+        # detection
+        self.conv5_1 = nn.Linear(128, 1)
 
+        # bounding box regression
+        self.conv5_2 = nn.Linear(128, 4)
 
-    def forward(self,x):
+        # landmark localization
+        self.conv5_3 = nn.Linear(128, 12)
+
+        # weight initiation weight xavier
+        self.apply(weigths_init)
+
+    def forward(self, x):
         x = self.pre_layer(x)
         x = x.view(x.size(0), -1)
         x = self.conv4(x)
-        return x
+        x = self.prelu4(x)
+
+        det = torch.sigmoid(self.conv5_1(x))
+        box = self.conv5_2(x)
+
+        # landmark
+        # landmark = self.conv5_3(x)
+
+        if self.is_train is True:
+            return det, box
+        # landamark = self.conv5_3(x)
+
+        return det, box
+
+
+class ONet(nn.Module):
+    def __init__(self, is_train=False, use_cuda=True):
+        super(ONet, self).__init__()
+        self.is_train = is_train
+        self.use_cuda = use_cuda
+
+        self.pre_layer = nn.Sequential(
+            nn.Conv2d(in_channels=3, out_channels=32, kernel_size=3, stride=1),
+            nn.PReLU(32),
+            nn.MaxPool2d(kernel_size=3, stride=2, ceil_mode=True),
+            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1),
+            nn.PReLU(64),
+            nn.MaxPool2d(kernel_size=3, stride=2, ceil_mode=True),
+            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1),
+            nn.PReLU(64),
+            nn.MaxPool2d(kernel_size=2, stride=2,ceil_mode=True),
+            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=2, stride=1),
+            nn.PReLU(128),
+        )
+        self.conv5 = nn.Linear(128*3*3,out_features=256)
+        self.prelu5 = nn.PReLU(256)
+
+        # detection
+        self.conv6_1= nn.Linear(in_features=256, out_features=1)
+        # bounding box
+        self.conv6_2 =nn.Linear(in_features=256, out_features=4)
+        # landmark locatiation
+        self.conv6_3 = nn.Linear(in_features=256, out_features=12)
+
+        # initial weight
+        self.apply(weigths_init)
+
+
+    def forward(self, x):
+        x = self.pre_layer(x)
+
+        x = x.view(x.size(0),-1)
+        x = self.conv5(x)
+        x = self.prelu5(x)
+
+        det = torch.sigmoid(self.conv6_1(x))
+
+        box = self.conv6_2(x)
+        landmark = self.conv6_3(x)
+
+        if self.is_train is True:
+            return det, box, landmark
+        return det, box, landmark
 
 
 
 if __name__ == "__main__":
-    x = torch.randn((2, 3, 24, 24))
-    net = RNet()
-    # print("label:",net(x)[0].shape)
-    # print("offset:", net(x)[1].shape)
-
-    print(net(x).shape)
+    x = torch.randn((2, 3, 12,12))
+    net = PNet()
+    # print(net(x).shape)
+    print(net(x)[0].shape)
+    print(net(x)[1].shape)
+    # print(net(x)[2].shape)
