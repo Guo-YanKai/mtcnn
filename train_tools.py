@@ -12,19 +12,17 @@ import torch
 from core.image_reader import LanMarkDataset
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader, random_split
-from core.logger import Train_Logger, LossAverage,AccAverage
+from core.logger import Train_Logger, LossAverage, AccAverage
 from tqdm import tqdm
 from models.LossFn import LossFn
 from collections import OrderedDict
-
-
-
 
 
 def val_pnet(net, val_loader, criterion, device):
     net.eval()
     val_loss = LossAverage()
     val_acc = AccAverage()
+
     with torch.no_grad():
         for idx, batch in tqdm(enumerate(val_loader), total=len(val_loader)):
             image_tensor = batch[0]["image"].to(device, dtype=torch.float32)
@@ -41,12 +39,12 @@ def val_pnet(net, val_loader, criterion, device):
             val_acc.update(cls_prod, gt_label)
 
         val_log = OrderedDict({"Val_Loss": val_loss.avg})
-        val_log.update({"Val_acc":val_acc.avg})
+        val_log.update({"Val_acc": val_acc.avg})
     return val_log
 
 
 def train_pnet(model_store_path, end_epoch, imdb,
-               batch_size,  base_lr=0.01, use_cuda=True):
+               batch_size, base_lr=0.01, use_cuda=True):
     device = torch.device("cuda:1")
     os.makedirs(model_store_path, exist_ok=True)
     net = PNet(is_train=True, use_cuda=use_cuda).to(device)
@@ -102,7 +100,7 @@ def train_pnet(model_store_path, end_epoch, imdb,
             train_acc.update(cls_pred, gt_label)
 
         train_log = OrderedDict({"Train_Loss": train_loss.avg})
-        train_log.update({"Train_acc":train_acc.avg})
+        train_log.update({"Train_acc": train_acc.avg})
         train_log.update({"lr": optimizer.state_dict()["param_groups"][0]["lr"]})
 
         # 验证过程
@@ -130,5 +128,3 @@ def train_pnet(model_store_path, end_epoch, imdb,
             print("=>early stopping")
             break
     torch.cuda.empty_cache()
-
-

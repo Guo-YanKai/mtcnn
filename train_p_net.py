@@ -58,15 +58,14 @@ def train_net(annotation_file, model_store_path,
     # 这里是翻转进行数据增强，可以先不使用
     # gt_imdb = imagedb.append_flipped_images(gt_imdb)
 
-
     train_pnet(model_store_path=model_store_path, end_epoch=end_epoch, imdb=gt_imdb,
                batch_size=batch_size, base_lr=lr, use_cuda=use_cuda)
 
 
 if __name__ =="__main__":
     args = parse_args()
-    print(args)
+    print(args.annotation_file)
 
-    train_net(args.annotation_file, args.model_store_path,
-              end_epoch=args.end_epoch,
-              lr=args.lr, batch_size=args.batch_size, use_cuda=args.use_cuda)
+    # train_net(args.annotation_file, args.model_store_path,
+    #           end_epoch=args.end_epoch,
+    #           lr=args.lr, batch_size=args.batch_size, use_cuda=args.use_cuda)

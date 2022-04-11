@@ -48,7 +48,6 @@ class ImageDB(object):
             img_path = self.real_image_path(index)
             imdb_ = dict()
             imdb_["image"] = img_path
-
             if self.mode == "test":
                 pass
             else:
@@ -69,8 +68,11 @@ class ImageDB(object):
             imdb.append(imdb_)
         return imdb
 
+
+
     def real_image_path(self, index):
         """给定图片的index,返回图片path"""
+
         index = index.replace("\\", "/")
         if not os.path.exists(index):
             image_file = os.path.join(self.prefix_path, index)
@@ -82,7 +84,6 @@ class ImageDB(object):
         #     image_file = image_file + '.jpg'
 
         assert os.path.exists(image_file), f"path does not exists {image_file}"
-
         return image_file
 
     def append_flipped_images(self, imdb):

@@ -45,6 +45,7 @@ def get_minibatch(imdb):
     return data, label
 
 
+
 def convert_image_to_tensor(image):
     """convert an image to pytorch tensor
         Parameters:
@@ -143,6 +144,7 @@ def split_data_val(dataset, valid_rate, shuffle=True):
     return train_sample, val_sample
 
 
+# 自己写的训练数据的处理脚本，比较适用
 class LanMarkDataset(Dataset):
     def __init__(self, imdb):
         super(LanMarkDataset, self).__init__()
@@ -174,6 +176,84 @@ class LanMarkDataset(Dataset):
         return data, label
 
 
+# 自己写pytorch转换脚本，对于测试数据不适用
+class TestDataset(Dataset):
+
+    def __init__(self, imdb):
+        self.imdb = imdb
+        self.transforme = transforms.Compose([transforms.ToTensor()])
+
+    def __len__(self):
+        return len(self.imdb)
+
+    def __getitem__(self, item):
+        img = cv2.imread(self.imdb[item]["image"])
+        img = self.transforme(img)
+        data = {"image":img}
+        return data
+
+
+
+#-----------------github库汇中自带的------------------
+class TestImageLoader:
+    def __init__(self, imdb, batch_size=1, shuffle=False):
+        self.imdb = imdb
+        self.batch_size = batch_size
+        self.shuffle = shuffle
+        self.size = len(imdb)
+        self.index = np.arange(self.size)
+
+        self.cur = 0
+        self.data = None
+        self.label = None
+
+        self.reset()
+        self.get_batch()
+
+    def reset(self):
+        self.cur = 0
+        if self.shuffle:
+            np.random.shuffle(self.index)
+
+    def iter_next(self):
+        return self.cur + self.batch_size <= self.size
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return self.next()
+
+    def next(self):
+        if self.iter_next():
+            self.get_batch()
+            self.cur += self.batch_size
+            return self.data
+        else:
+            raise StopIteration
+
+    def getindex(self):
+        return self.cur / self.batch_size
+
+    def getpad(self):
+        if self.cur + self.batch_size > self.size:
+            return self.cur + self.batch_size - self.size
+        else:
+            return 0
+
+    def get_batch(self):
+        cur_from = self.cur
+        cur_to = min(cur_from + self.batch_size, self.size)
+        imdb = [self.imdb[self.index[i]] for i in range(cur_from, cur_to)]
+        data= get_testbatch(imdb)
+        self.data=data['data']
+
+
+def get_testbatch(imdb):
+    assert len(imdb) == 1, "Single batch only"
+    im = cv2.imread(imdb[0]['image'])
+    data = {'data': im}
+    return data
 
 
 
